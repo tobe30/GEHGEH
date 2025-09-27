@@ -7,24 +7,23 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { authUser } = useAuthUser();
+  const { authUser, isLoading } = useAuthUser();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const { mutate: logoutMutation } = useMutation({
     mutationFn: logout,
-     onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["authUser"] });
-    navigate("/"); // <-- redirect after logout
-  },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      navigate("/"); // redirect after logout
+    },
   });
 
-  // Smooth scroll function
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
-      setMenuOpen(false); // close menu on mobile after click
+      setMenuOpen(false);
     }
   };
 
@@ -45,36 +44,19 @@ const Navbar = () => {
         <Link className="hover:text-blue-900" to={"/"}>
           Home
         </Link>
-        <button
-          className="hover:text-blue-900"
-          onClick={() => scrollToSection("about")}
-        >
+        <button className="hover:text-blue-900" onClick={() => scrollToSection("about")}>
           About
         </button>
-        <button
-          className="hover:text-blue-900"
-          onClick={() => scrollToSection("services")}
-        >
+        <button className="hover:text-blue-900" onClick={() => scrollToSection("services")}>
           Services
         </button>
-        <button onClick={() => scrollToSection("testimonials")} className="hover:text-blue-900" href="#">
+        <button className="hover:text-blue-900" onClick={() => scrollToSection("testimonials")}>
           Testimonials
         </button>
 
         {/* Close button (mobile) */}
-        <button
-          onClick={() => setMenuOpen(false)}
-          className="md:hidden text-gray-600"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+        <button onClick={() => setMenuOpen(false)} className="md:hidden text-gray-600">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -82,7 +64,10 @@ const Navbar = () => {
 
       {/* Buttons (desktop only) */}
       <div className="hidden md:flex space-x-4">
-        {authUser ? (
+        {isLoading ? (
+          // Loading skeleton for button
+          <div className="w-24 h-8 bg-gray-300 rounded animate-pulse"></div>
+        ) : authUser ? (
           <>
             <Link
               to="/my-booking"
@@ -106,19 +91,8 @@ const Navbar = () => {
       </div>
 
       {/* Open menu (mobile only) */}
-      <button
-        onClick={() => setMenuOpen(true)}
-        className="md:hidden text-gray-600"
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
+      <button onClick={() => setMenuOpen(true)} className="md:hidden text-gray-600">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
