@@ -142,7 +142,14 @@ export const joinCall = async (req, res) => {
     }
 
     // 3. Combine date + time properly
+// Ensure slot.date is a Date
 const slotDateRaw = new Date(booking.slot.date);
+
+// Extract Y/M/D from Date safely
+const year = slotDateRaw.getFullYear();
+const month = slotDateRaw.getMonth(); // already 0-based
+const day = slotDateRaw.getDate();
+
 let [hoursStr, minutesStr] = booking.slot.time.replace(/AM|PM/i, "").trim().split(":");
 let hours = Number(hoursStr);
 let minutes = Number(minutesStr || 0);
@@ -151,16 +158,9 @@ let minutes = Number(minutesStr || 0);
 if (/PM/i.test(booking.slot.time) && hours < 12) hours += 12;
 if (/AM/i.test(booking.slot.time) && hours === 12) hours = 0;
 
-// Local slot date
-const slotDate = new Date(
-  slotDateRaw.getFullYear(),
-  slotDateRaw.getMonth(),
-  slotDateRaw.getDate(),
-  hours,
-  minutes,
-  0,
-  0
-);
+// Local slot date (safe, no UTC shift)
+const slotDate = new Date(year, month, day, hours, minutes, 0, 0);
+slotDate.setHours(slotDate.getHours() - 1);// adjust for UTC+1 1 hour difference
 
 const now = new Date();
 const earlyJoinWindow = 5 * 60 * 1000; // 5 minutes
