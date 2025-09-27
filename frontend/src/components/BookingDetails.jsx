@@ -50,17 +50,15 @@ const BookingDetails = () => {
 const canJoin = booking?.success;
 
 
-   const handleJoinCall = () => {
-    if (canJoin) {
-      window.open(
-        `/video-call/${booking.callId}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    } else {
-      toast.error("You can join this call only when the appointment time has started.");
-    }
-  };
+ const handleJoinCall = () => {
+  if (canJoin) {
+    const fullUrl = `${window.location.origin}/video-call/${booking.callId}`;
+    window.open(fullUrl, "_blank", "noopener,noreferrer");
+  } else {
+    toast.error("You can join this call only when the appointment time has started.");
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center">
