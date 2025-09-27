@@ -86,7 +86,6 @@ export const login = async (req, res)=> {
             res.cookie("jwt",token,{
             maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true, // prevent xss attacks
-            sameSite: "strict",//prevent CSRF attacks
             secure: true, // only for https, works with ngrok
             sameSite: "none" // allows cross-site cookies
         
@@ -101,8 +100,12 @@ export const login = async (req, res)=> {
 }
 
 //logout function
-export function logout(req, res){
-    res.clearCookie("jwt")
-    res.status(200).json({success: true, message: "Logout successful"});
-
+export function logout(req, res) {
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: true,     
+    sameSite: "none", 
+  });
+  res.status(200).json({ success: true, message: "Logout successful" });
 }
+

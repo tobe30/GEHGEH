@@ -94,7 +94,7 @@ const Register = () => {
                        "Create Account"
                      )}
                     </button>
-                    <p className="text-gray-500/90 text-sm mt-4">Don’t have an account? <Link className="text-primary hover:underline" to="/login">Sign up</Link></p>
+                    <p className="text-gray-500/90 text-sm mt-4">Don’t have an account? <Link className="text-primary hover:underline" to="/login">Sign in</Link></p>
                 </form>
             </div>
         </div>
