@@ -160,7 +160,7 @@ if (/AM/i.test(booking.slot.time) && hours === 12) hours = 0;
 
 // Local slot date (safe, no UTC shift)
 const slotDate = new Date(year, month, day, hours, minutes, 0, 0);
-slotDate.setHours(slotDate.getHours() + 1);
+slotDate.setHours(slotDate.getHours() - 1);
 
 const now = new Date();
 const earlyJoinWindow = 5 * 60 * 1000; // 5 minutes
