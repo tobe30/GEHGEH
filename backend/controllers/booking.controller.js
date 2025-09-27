@@ -141,8 +141,14 @@ export const joinCall = async (req, res) => {
       return res.status(403).json({ message: "Payment required before joining" });
     }
 
-   // 3. Combine date + time properly (local-safe)
-const [year, month, day] = booking.slot.date.split("T")[0].split("-").map(Number);
+    // 3. Combine date + time properly
+// Ensure slot.date is a Date
+const slotDateRaw = new Date(booking.slot.date);
+
+// Extract Y/M/D from Date safely
+const year = slotDateRaw.getFullYear();
+const month = slotDateRaw.getMonth(); // already 0-based
+const day = slotDateRaw.getDate();
 
 let [hoursStr, minutesStr] = booking.slot.time.replace(/AM|PM/i, "").trim().split(":");
 let hours = Number(hoursStr);
@@ -152,27 +158,27 @@ let minutes = Number(minutesStr || 0);
 if (/PM/i.test(booking.slot.time) && hours < 12) hours += 12;
 if (/AM/i.test(booking.slot.time) && hours === 12) hours = 0;
 
-// Local slot date (no UTC shift)
-const slotDate = new Date(year, month - 1, day, hours, minutes, 0, 0);
+// Local slot date (safe, no UTC shift)
+const slotDate = new Date(year, month, day, hours, minutes, 0, 0);
+
 
 const now = new Date();
-const earlyJoinWindow = 5 * 60 * 1000; // 5 minutes before slot
-const gracePeriod = 2 * 60 * 60 * 1000; // 2 hours after slot
+const earlyJoinWindow = 5 * 60 * 1000; // 5 minutes
+const gracePeriod = 2 * 60 * 60 * 1000; // 2 hours
 
-// Allow join max 5 min before actual slot
+// Allow join 5 min before actual slot
 if (!req.user.isAdmin && slotDate.getTime() - now.getTime() > earlyJoinWindow) {
   return res.status(403).json({
     message: "You can only join when appointment time has started (5 min early allowed)",
   });
 }
 
-// Block expired calls (after 2 hours past slot)
-if (!req.user.isAdmin && now.getTime() - slotDate.getTime() > gracePeriod) {
+// Block expired calls (after 2 hours)
+if (!req.user.isAdmin && now - slotDate > gracePeriod) {
   return res.status(403).json({
     message: "This appointment has expired",
   });
 }
-
 
     // 4. Generate Stream token
     const token = generateStreamToken(userId.toString());
