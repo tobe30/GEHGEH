@@ -142,41 +142,43 @@ export const joinCall = async (req, res) => {
     }
 
     // 3. Combine date + time properly
-    const slotDateUTC = new Date(booking.slot.date); // UTC midnight
-    let [hoursStr, minutesStr] = booking.slot.time.replace(/AM|PM/i, "").trim().split(":");
-    let hours = Number(hoursStr);
-    let minutes = Number(minutesStr || 0);
+const slotDateRaw = new Date(booking.slot.date);
+let [hoursStr, minutesStr] = booking.slot.time.replace(/AM|PM/i, "").trim().split(":");
+let hours = Number(hoursStr);
+let minutes = Number(minutesStr || 0);
 
-    // Convert AM/PM to 24-hour format
-    if (/PM/i.test(booking.slot.time) && hours < 12) hours += 12;
-    if (/AM/i.test(booking.slot.time) && hours === 12) hours = 0;
+// Convert AM/PM to 24h
+if (/PM/i.test(booking.slot.time) && hours < 12) hours += 12;
+if (/AM/i.test(booking.slot.time) && hours === 12) hours = 0;
 
-    // Create local Date object for slot
-    const slotDate = new Date(
-      slotDateUTC.getUTCFullYear(),
-      slotDateUTC.getUTCMonth(),
-      slotDateUTC.getUTCDate(),
-      hours,
-      minutes,
-      0,
-      0
-    );
+// Local slot date
+const slotDate = new Date(
+  slotDateRaw.getFullYear(),
+  slotDateRaw.getMonth(),
+  slotDateRaw.getDate(),
+  hours,
+  minutes,
+  0,
+  0
+);
 
-    const now = new Date();
+const now = new Date();
+const earlyJoinWindow = 5 * 60 * 1000; // 5 minutes
+const gracePeriod = 2 * 60 * 60 * 1000; // 2 hours
 
-    // Only block if appointment is in the future
-    if (!req.user.isAdmin && slotDate > now) {
-      return res.status(403).json({
-        message: "You can only join when appointment time has started",
-      });
-    }
+// Allow join 5 min before actual slot
+if (!req.user.isAdmin && slotDate.getTime() - now.getTime() > earlyJoinWindow) {
+  return res.status(403).json({
+    message: "You can only join when appointment time has started (5 min early allowed)",
+  });
+}
 
-      const gracePeriod = 2 * 60 * 60 * 1000; // 2 hours
-    if (!req.user.isAdmin && now - slotDate > gracePeriod) {
-      return res.status(403).json({
-        message: "This appointment has expired",
-      });
-    }
+// Block expired calls (after 2 hours)
+if (!req.user.isAdmin && now - slotDate > gracePeriod) {
+  return res.status(403).json({
+    message: "This appointment has expired",
+  });
+}
 
     // 4. Generate Stream token
     const token = generateStreamToken(userId.toString());
