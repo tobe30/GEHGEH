@@ -31,20 +31,23 @@ const Bookings = () => {
   };
 
   const handleJoinCall = async (bookingId) => {
-    try {
-      const { data } = await axiosInstance.get(`/booking/join/${bookingId}`);
-      if (data.success) {
-        navigate(`/video-call/${data.callId}`, {
-          state: { token: data.token, userId: data.userId },
-        });
-      } else {
-        toast.error(data.message || "Cannot join call yet");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Error joining call");
+  try {
+    const { data } = await axiosInstance.get(`/booking/join/${bookingId}`);
+    if (data.success) {
+      // Open the call in a new tab
+      window.open(
+        `/video-call/${data.callId}`,
+        "_blank", // open in new tab
+        "noopener,noreferrer"
+      );
+    } else {
+      toast.error(data.message || "Cannot join call yet");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || "Error joining call");
+  }
+};
 
   if (isLoading) return <p className="p-6 text-center">Loading bookings...</p>;
 
