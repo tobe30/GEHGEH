@@ -49,19 +49,16 @@ const BookingDetails = () => {
   
 const canJoin = booking?.success;
 
-  const handleJoinCall = async () => {
-    try {
-      const { data } = await axiosInstance.get(`/booking/join/${bookingId}`);
-      if (data.success) {
-        navigate(`/video-call/${data.callId}`, {
-          state: { token: data.token, userId: data.userId },
-        });
-      } else {
-        toast.error(data.message || "Cannot join call yet");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error joining call");
+
+   const handleJoinCall = () => {
+    if (canJoin) {
+      window.open(
+        `/video-call/${booking.callId}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } else {
+      toast.error("You can join this call only when the appointment time has started.");
     }
   };
 
