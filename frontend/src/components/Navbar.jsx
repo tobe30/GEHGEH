@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Calendar, LogOut } from "lucide-react";
 import useAuthUser from "../hooks/useAuthUser";
 import { logout } from "../lib/api";
@@ -9,10 +9,14 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { authUser } = useAuthUser();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { mutate: logoutMutation } = useMutation({
     mutationFn: logout,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+     onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    navigate("/login"); // <-- redirect after logout
+  },
   });
 
   // Smooth scroll function
