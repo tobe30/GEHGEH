@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import session from "express-session";
 import "dotenv/config";
 import { connDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -15,37 +14,31 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     "http://localhost:5173",              // local dev
-    "https://gehgeh-official.vercel.app",   // deployed frontend
+    "https://gehgeh-official.vercel.app", // deployed frontend
   ],
   credentials: true,
 }));
 
-
 app.use(express.json());
 app.use(cookieParser());
 
-// // SESSION
-// app.use(session({
-//   secret: process.env.JWT_SECRET_KEY,
-//   resave: false,
-//   saveUninitialized: false,
-//   cookie: {
-//     httpOnly: true,       // cannot be accessed by client JS
-//     secure: true,         // must be true for HTTPS (ngrok is HTTPS)
-//     sameSite: "none",     // allow cross-site cookies
-//     maxAge: 24 * 60 * 60 * 1000, // 1 day
-//   }
-// }));
-
 // ROUTES
-app.get('/', (req, res)=>res.send('Hello from server'))
-
+app.get("/", (req, res) => res.send("Hello from server"));
 app.use("/api/auth", authRoutes);
 app.use("/api/appointment", appointmentRoutes);
 app.use("/api/booking", bookingRoutes);
 
-// START SERVER
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  connDB();
-});
+// ✅ Start server only after DB is connected
+const startServer = async () => {
+  try {
+    await connDB(); // wait for MongoDB to connect
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Failed to start server:", err.message);
+    process.exit(1);
+  }
+};
+
+startServer();
