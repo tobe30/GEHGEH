@@ -14,29 +14,32 @@ const PORT = process.env.PORT || 5000;
 // CORS
 app.use(cors({
   origin: [
-    "http://localhost:5173",
-    "https://e3918328fa22.ngrok-free.app" // ngrok frontend
+    "http://localhost:5173",              // local dev
+    "https://gehgeh-official.vercel.app/",   // deployed frontend
   ],
-  credentials: true, // allow cookies
+  credentials: true,
 }));
+
 
 app.use(express.json());
 app.use(cookieParser());
 
-// SESSION
-app.use(session({
-  secret: process.env.JWT_SECRET_KEY,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,       // cannot be accessed by client JS
-    secure: true,         // must be true for HTTPS (ngrok is HTTPS)
-    sameSite: "none",     // allow cross-site cookies
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-  }
-}));
+// // SESSION
+// app.use(session({
+//   secret: process.env.JWT_SECRET_KEY,
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     httpOnly: true,       // cannot be accessed by client JS
+//     secure: true,         // must be true for HTTPS (ngrok is HTTPS)
+//     sameSite: "none",     // allow cross-site cookies
+//     maxAge: 24 * 60 * 60 * 1000, // 1 day
+//   }
+// }));
 
 // ROUTES
+app.get('/', (req, res)=>res.send('Hello from server'))
+
 app.use("/api/auth", authRoutes);
 app.use("/api/appointment", appointmentRoutes);
 app.use("/api/booking", bookingRoutes);
