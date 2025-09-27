@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 //register function
 export const Register = async (req, res) => {
     try {
-        const {username, email, password} = req.body
+        const {username, email, password, role} = req.body
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)){
@@ -29,6 +29,7 @@ export const Register = async (req, res) => {
             username,
             email,
             password: hashedPassword,
+            role: role || "client",
         })
 
         try {
@@ -48,7 +49,6 @@ export const Register = async (req, res) => {
         res.cookie("jwt",token,{
             maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true, // prevent xss attacks
-            sameSite: "strict",//prevent CSRF attacks
             secure: true, // only for https, works with ngrok
             sameSite: "none" // allows cross-site cookies
         
