@@ -1,4 +1,4 @@
-import { Calendar, Menu } from 'lucide-react';
+import { Calendar, Menu, X } from 'lucide-react';
 import React, { useState } from 'react'
 import { Link, Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
